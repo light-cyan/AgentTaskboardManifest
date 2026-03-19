@@ -1,3 +1,15 @@
+---
+name: agent-taskboard-manifest
+description: >
+  A specification to define, load, or execute semantic workflow descriptions for agents.
+  USE WHEN the user mentions a complex task: search for a suitable existing workflow, and if found, ask the user for confirmation to execute it.
+  USE WHEN the user requests a text-based plan or asks to summarize executed actions into a workflow: load this specification to generate it.
+metadata:
+  author: light-cyan
+  version: '0.1.0'
+  repository: https://github.com/light-cyan/AgentTaskboardManifest
+---
+
 # Agent Workflow Specification (AgentTaskboardManifest)
 
 ## 概述 (Overview)
