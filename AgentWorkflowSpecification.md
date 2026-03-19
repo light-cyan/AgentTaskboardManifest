@@ -9,15 +9,15 @@
 
 ## Architecture Overview
 
-工作流作为一个独立目录进行组织，天然支持**懒加载 (Lazy Load)** 机制。Agent 启动时只需读取 `workflow.yaml` 了解全局边界，并加载 `entry.task.yaml` 作为起跑点。其他的 `*.task.yaml` 只有在被具体步骤引用时，才会被动态加载进入上下文。
+工作流作为一个独立目录进行组织，天然支持**懒加载 (Lazy Load)** 机制。Agent 启动时只需读取 `workflow.yaml` 了解全局边界，并加载 `!entry.task.yaml` 作为起跑点。其他的 `*.task.yaml` 只有在被具体步骤引用时，才会被动态加载进入上下文。
 
 **标准目录结构：**
 
 ```text
 <goal_task_name>/
-├── workflow.yaml       # 全局工作流描述与边界设定 (全局上下文)
-├── entry.task.yaml     # 工作流执行主入口 (起点)
-└── *.task.yaml         # 可复用的子任务节点 (动态加载)
+├── -workflow.yaml       # 全局工作流描述与边界设定 (全局上下文)
+├── !entry.task.yaml     # 工作流执行主入口 (起点)
+└── *.task.yaml          # 可复用的子任务节点 (动态加载)
 
 ```
 
@@ -28,7 +28,7 @@
 
 摒弃了繁琐的类型字段，采用**“键名作为锚点，字符串包揽约束”**的极简映射规则。
 
-### `workflow.yaml`
+### `-workflow.yaml`
 
 此文件为 Agent 建立全局上下文（Global Context），让它知道“我在做什么”、“我的边界在哪里”。
 
@@ -157,7 +157,7 @@ steps:                         # 执行步骤列表（按序执行）
 
 以下展示一个自动化计算化学工作流的片段。该工作流需要 Agent 检索目标分子的信息，生成 Gaussian 作业文件（`.gjf`），并提交到 HPC 的 Slurm 队列中。
 
-### 示例 1: `workflow.yaml`
+### 示例 1: `-workflow.yaml`
 
 ```yaml
 id: "automated_gaussian_optimization"
@@ -171,7 +171,7 @@ global_conventions:
 
 ```
 
-### 示例 2: `entry.task.yaml`
+### 示例 2: `!entry.task.yaml`
 
 ```yaml
 id: "main_execution_flow"
