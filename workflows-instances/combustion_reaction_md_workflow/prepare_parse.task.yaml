@@ -1,0 +1,39 @@
+id: "prepare_parse"
+purpose: "Convert optimized Gaussian outputs into xyz structures for packing and simulation."
+inputs:
+  fuel_log: "Required. Gaussian optimization log for the fuel species."
+  oxygen_log: "Required. Gaussian optimization log for O2."
+outputs:
+  fuel_xyz: "Optimized xyz file for the fuel species."
+  oxygen_xyz: "Optimized xyz file for O2."
+prerequisites:
+  - spec: "dpdata must be available for Gaussian-output conversion."
+    how_to_check: "Verify the dpdata conversion command can read Gaussian log output."
+steps:
+  - id: "convert_fuel_output"
+    action: "Use dpdata to convert the optimized Gaussian output of the fuel species into an xyz file. If the fuel is methane, the output filename should be CH4.xyz."
+    checks:
+      fuel_xyz_ok:
+        method: "Inspect the generated fuel xyz file for existence and expected atom count."
+        guard: "The file exists, is non-empty, and matches the optimized fuel composition."
+    when:
+      - condition: "Fuel conversion fails"
+        evidence: "dpdata errors or the generated xyz file is invalid."
+        response: "FAIL"
+        message: "System construction depends on the optimized fuel xyz file."
+
+  - id: "convert_oxygen_output"
+    action: "Use dpdata to convert the optimized Gaussian output of O2 into O2.xyz."
+    checks:
+      oxygen_xyz_ok:
+        method: "Inspect the generated O2 xyz file for existence and expected atom count."
+        guard: "The file exists, is non-empty, and matches O2."
+    when:
+      - condition: "O2 conversion fails"
+        evidence: "dpdata errors or the generated xyz file is invalid."
+        response: "FAIL"
+        message: "System construction depends on the optimized oxidizer xyz file."
+      - condition: "Both xyz files are ready"
+        evidence: "Fuel xyz and O2.xyz are both valid."
+        response: "SUCCESS"
+        message: "Parsing stage is complete."

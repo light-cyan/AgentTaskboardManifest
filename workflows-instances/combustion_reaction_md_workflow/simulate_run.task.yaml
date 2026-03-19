@@ -1,0 +1,47 @@
+id: "simulate_run"
+purpose: "Submit and monitor the staged reactive MD jobs through dpdispatcher."
+inputs:
+  server_info: "Required. Execution environment details for dpdispatcher submission."
+  relaxation_input: "Required. LAMMPS input for initial relaxation or pre-equilibration."
+  heating_input: "Required. LAMMPS input for NVT heating."
+  production_input: "Required. LAMMPS input for production reactive MD."
+outputs:
+  md_job_records: "Submission metadata and job status for each MD stage."
+  lammps_logs: "LAMMPS log files from relaxation, heating, and production."
+  thermo_output: "Thermodynamic history from the production run."
+  trajectory_file: "Trajectory file for ReacNetGenerator analysis."
+prerequisites:
+  - spec: "dpdispatcher submission must already be validated for the target environment."
+    how_to_check: "Reuse the successful environment-validation result from preparation."
+steps:
+  - id: "submit_relaxation"
+    action: "Submit the relaxation or low-temperature pre-equilibration job through dpdispatcher and confirm it finishes with usable outputs."
+    when:
+      - condition: "Relaxation job fails"
+        evidence: "Submission failure, runtime abort, or unusable output."
+        response: "FAIL"
+        message: "Heating and production should not continue because the initial bad contacts were not resolved."
+
+  - id: "submit_heating"
+    action: "Submit the NVT heating job through dpdispatcher and confirm the system is heated toward the target temperature of 3000 K as planned."
+    when:
+      - condition: "Heating job fails"
+        evidence: "Submission failure, runtime abort, or temperature-control stage does not complete."
+        response: "FAIL"
+        message: "Production reactive MD depends on successful staged heating."
+
+  - id: "submit_production"
+    action: "Submit the 50 ps production reactive MD job through dpdispatcher and collect thermodynamic and trajectory outputs."
+    checks:
+      production_ok:
+        method: "Inspect LAMMPS logs, thermo output, and trajectory files."
+        guard: "Production reaches the planned simulated time and produces readable thermo and trajectory outputs."
+    when:
+      - condition: "Production run fails"
+        evidence: "Runtime abort, incomplete run length, or unusable trajectory output."
+        response: "FAIL"
+        message: "Reaction-network analysis is blocked without a valid production trajectory."
+      - condition: "All MD stages succeed"
+        evidence: "Job records, logs, thermo output, and trajectory are all available."
+        response: "SUCCESS"
+        message: "Reactive MD execution is complete."

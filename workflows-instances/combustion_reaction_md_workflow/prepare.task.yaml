@@ -1,0 +1,83 @@
+id: "prepare_stage"
+purpose: "Prepare all molecular and structural inputs needed for reactive combustion MD."
+inputs:
+  combustible_species: "Required. Fuel species name. May start as <unknowns>."
+  fuel_count: "Required for packing. Number of fuel molecules. May start as <unknowns>."
+  target_density: "Required. Packing density in g/cm^3. May start as <unknowns>."
+  server_info: "Required. Machine and scheduler details for dpdispatcher. May start as <unknowns>."
+  oxidizer_rule: "Required. Rule for deriving O2 count. May start as <unknowns>."
+outputs:
+  fuel_smiles: "Validated SMILES for the fuel."
+  oxygen_smiles: "Validated SMILES for O2."
+  fuel_xyz: "Optimized xyz file for the fuel."
+  oxygen_xyz: "Optimized xyz file for O2."
+  packed_xyz: "Packed initial mixture structure."
+  lammps_data_file: "LAMMPS-readable data file for the initial combustion system."
+  preparation_summary: "Summary of resolved inputs, artifact paths, and blocking status."
+prerequisites:
+  - spec: "The machine and submission path are healthy before preparation starts."
+    how_to_check: "Run the environment-validation sub-task first."
+steps:
+  - id: "check_environment"
+    action: "Execute sub-task `./prepare_check_environment.task.yaml`."
+    produces:
+      environment_report: "Machine health and dpdispatcher submission readiness summary."
+    when:
+      - condition: "Environment validation fails"
+        evidence: "Sub-task returns FAIL or unresolved blocking status."
+        response: "FAIL"
+        message: "Preparation cannot begin until the execution environment is ready."
+
+  - id: "query_species"
+    action: "Execute sub-task `./prepare_query.task.yaml`."
+    produces:
+      species_query_outputs: "Resolved user inputs plus validated fuel and O2 SMILES."
+    when:
+      - condition: "Species query sub-task fails"
+        evidence: "Required user inputs or molecular identifiers remain unresolved."
+        response: "FAIL"
+        message: "Preparation cannot continue without valid species and user parameters."
+
+  - id: "generate_initial_coordinates"
+    action: "Execute sub-task `./prepare_initial_coordinates.task.yaml`."
+    produces:
+      initial_gjf_files: "Preliminary Gaussian input files with coordinates."
+    when:
+      - condition: "Initial coordinate generation fails"
+        evidence: "Open Babel or related coordinate generation does not produce valid files."
+        response: "FAIL"
+        message: "Optimization depends on valid initial coordinates."
+
+  - id: "optimize_structures"
+    action: "Execute sub-task `./prepare_optimize.task.yaml`."
+    produces:
+      gaussian_outputs: "Optimization jobs, logs, and checkpoint-derived artifacts."
+    when:
+      - condition: "Optimization sub-task fails"
+        evidence: "Submission fails or Gaussian does not produce usable optimized geometries."
+        response: "FAIL"
+        message: "Parsing and packing depend on optimized structures."
+
+  - id: "parse_optimized_structures"
+    action: "Execute sub-task `./prepare_parse.task.yaml`."
+    produces:
+      parsed_xyz_files: "Optimized xyz files ready for system construction."
+    when:
+      - condition: "Parsing sub-task fails"
+        evidence: "dpdata conversion fails or xyz outputs are invalid."
+        response: "FAIL"
+        message: "System construction depends on parsed optimized structures."
+
+  - id: "build_initial_system"
+    action: "Execute sub-task `./prepare_build.task.yaml`."
+    produces:
+      initial_system_outputs: "Packed system and LAMMPS data file."
+    when:
+      - condition: "Build sub-task fails"
+        evidence: "Packmol or data conversion fails, or oxidizer count remains ambiguous."
+        response: "FAIL"
+        message: "Simulation cannot begin without a valid initial system."
+      - condition: "Build sub-task succeeds"
+        evidence: "Preparation artifacts and summary are available."
+        response: "SUCCESS"
+        message: "Preparation stage is complete."

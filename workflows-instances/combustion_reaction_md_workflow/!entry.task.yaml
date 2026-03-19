@@ -1,0 +1,44 @@
+id: "main_execution_flow"
+purpose: "Orchestrate the whole combustion workflow in three stages: prepare, simulate, and analyze."
+inputs:
+  combustible_species: "Required. Fuel species name. Initial value may be <unknowns> and should be requested from the user when needed."
+  fuel_count: "Required for mixture construction. Number of fuel molecules. Initial value may be <unknowns>."
+  target_density: "Required. Mixture density in g/cm^3. Initial value may be <unknowns>."
+  server_info: "Required. Execution environment details for dpdispatcher. Initial value is <unknowns>."
+  oxidizer_rule: "Required. Rule for determining the corresponding O2 amount. Initial value may be <unknowns> unless the user explicitly accepts complete-combustion stoichiometry."
+outputs:
+  workflow_status: "Final summary of finished stages, failed stages, blocked stages, and pending user inputs."
+  key_artifacts: "Key output paths from preparation, simulation, and analysis."
+prerequisites:
+  - spec: "The root workspace exists and is writable."
+    how_to_check: "Run `test -d /home/mwding/WorkSpace/Projects/testAgents/workspace4agent && test -w /home/mwding/WorkSpace/Projects/testAgents/workspace4agent`."
+steps:
+  - id: "prepare_stage"
+    action: "Execute sub-task `./prepare.task.yaml`."
+    produces:
+      preparation_outputs: "Prepared molecular and system artifacts for downstream simulation."
+    when:
+      - condition: "Preparation sub-task raises a blocking failure"
+        evidence: "Sub-task reports FAIL or raises an unresolved status."
+        response: "FAIL"
+        message: "Simulation and analysis depend on preparation outputs and cannot continue."
+
+  - id: "simulate_stage"
+    action: "Execute sub-task `./simulate.task.yaml`."
+    produces:
+      simulation_outputs: "Reactive MD setup files, job records, logs, and trajectory outputs."
+    when:
+      - condition: "Simulation sub-task raises a blocking failure"
+        evidence: "Sub-task reports FAIL or raises an unresolved status."
+        response: "FAIL"
+        message: "Analysis depends on the simulation trajectory and cannot continue."
+
+  - id: "analyze_stage"
+    action: "Execute sub-task `./analyze.task.yaml`."
+    produces:
+      analysis_outputs: "Reaction-network reports and pathway summaries."
+    when:
+      - condition: "Analysis sub-task completes or reports an analysis-only failure"
+        evidence: "Sub-task returns final status and available artifacts."
+        response: "SUCCESS"
+        message: "Top-level workflow has finished with all available outputs summarized."

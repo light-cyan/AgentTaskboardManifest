@@ -1,0 +1,41 @@
+id: "prepare_query"
+purpose: "Collect unresolved user inputs and retrieve validated molecular identifiers for the fuel and oxygen."
+inputs:
+  combustible_species: "Required. Fuel species name. May start as <unknowns>."
+  fuel_count: "Required for mixture construction. May start as <unknowns>."
+  target_density: "Required. Mixture density in g/cm^3. May start as <unknowns>."
+  oxidizer_rule: "Required. Rule for determining O2 count. May start as <unknowns>."
+outputs:
+  combustible_species: "Resolved fuel species name."
+  fuel_count: "Resolved number of fuel molecules."
+  target_density: "Resolved density in g/cm^3."
+  oxidizer_rule: "Resolved rule for determining O2 count."
+  fuel_smiles: "Validated SMILES for the fuel species."
+  oxygen_smiles: "Validated SMILES for O2."
+prerequisites:
+  - spec: "The user is reachable for clarification."
+    how_to_check: "Ask follow-up questions when required values remain unknown."
+steps:
+  - id: "ask_missing_inputs"
+    action: "Inquire user for any unresolved required inputs: combustible species name, fuel molecule count, target density, and the rule for determining the corresponding O2 amount."
+    when:
+      - condition: "Critical inputs remain unresolved after inquiry"
+        evidence: "User refuses, cancels, or leaves required values ambiguous."
+        response: "FAIL"
+        message: "Preparation cannot continue without the core chemistry and packing parameters."
+
+  - id: "search_structures"
+    action: "Use the species-search capability to retrieve validated SMILES for the fuel species and O2."
+    checks:
+      species_identified:
+        method: "Inspect search results for usable, reliable structural matches."
+        guard: "Both the fuel and O2 have validated SMILES strings."
+    when:
+      - condition: "A required species cannot be identified"
+        evidence: "Search returns no reliable match or a non-usable ambiguous result."
+        response: "FAIL"
+        message: "Downstream coordinate generation depends on validated structures."
+      - condition: "Species are identified successfully"
+        evidence: "Usable SMILES are returned for both species."
+        response: "SUCCESS"
+        message: "Query stage is complete."

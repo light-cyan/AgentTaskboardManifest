@@ -1,0 +1,37 @@
+id: "prepare_check_environment"
+purpose: "Verify machine health, workspace readiness, and dpdispatcher submission capability before the chemistry workflow starts."
+inputs:
+  server_info: "Required. Host, scheduler, queue, authentication method, and any execution constraints. Initial value may be <unknowns>."
+outputs:
+  environment_report: "Summary of connectivity, scheduler status, writable paths, and submission readiness."
+  submission_probe_result: "Evidence from a trivial dpdispatcher probe job or explicit blocking reason."
+prerequisites:
+  - spec: "The workflow workspace path is known."
+    how_to_check: "Confirm /home/mwding/WorkSpace/Projects/testAgents/workspace4agent is defined."
+steps:
+  - id: "resolve_server_info"
+    action: "Inquire user for server information if it is still <unknowns>. Required details should be sufficient for dpdispatcher submission and health checks."
+    when:
+      - condition: "Server information remains unavailable"
+        evidence: "User does not provide enough machine or scheduler details."
+        response: "raise(permission required)"
+        message: "Ask the user to provide server information before any heavy workflow step."
+
+  - id: "run_health_checks"
+    action: "Check connectivity to the target environment, verify the workspace is writable, inspect scheduler availability, and test whether dpdispatcher can submit a trivial job."
+    produces:
+      connectivity_status: "Connectivity and authentication result."
+      scheduler_status: "Scheduler readiness result."
+    checks:
+      environment_ok:
+        method: "Review command outputs from connectivity, writable-path, scheduler, and probe submission checks."
+        guard: "All essential checks pass and a trivial submission is accepted or executed."
+    when:
+      - condition: "Any essential health check fails"
+        evidence: "Connectivity failure, unwritable workspace, scheduler unavailable, or probe submission failure."
+        response: "FAIL"
+        message: "The environment is not ready, so the entire workflow must stop before dependent steps."
+      - condition: "All checks pass"
+        evidence: "Environment report and submission probe are both positive."
+        response: "SUCCESS"
+        message: "Execution environment is ready."

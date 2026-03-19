@@ -1,0 +1,38 @@
+id: "simulate_prepare"
+purpose: "Prepare the Deep Potential model and LAMMPS input files for staged reactive MD."
+inputs:
+  lammps_data_file: "Required. Initial combustion-system data file from preparation."
+  deepmd_model_url: "Required. URL for the pretrained Deep Potential model."
+outputs:
+  deepmd_model: "Local path to graph.pb or explicit blocking reason if unavailable."
+  relaxation_input: "LAMMPS input for short relaxation or low-temperature pre-equilibration."
+  heating_input: "LAMMPS input for heating the system toward 3000 K under NVT."
+  production_input: "LAMMPS input for 50 ps production MD at 0.1 fs timestep."
+  md_parameter_summary: "Explicit summary of pre-equilibration conditions, heating method, target temperature, timestep, total simulation time, thermo frequency, and trajectory frequency."
+prerequisites:
+  - spec: "LAMMPS with DeePMD-kit support must be available in the target environment."
+    how_to_check: "Verify the chosen LAMMPS executable or module supports DeePMD pair style."
+steps:
+  - id: "obtain_model"
+    action: "Retrieve the Deep Potential model from the provided URL and place it in the workflow workspace."
+    when:
+      - condition: "Model retrieval fails"
+        evidence: "Download errors, access issues, or missing output file."
+        response: "FAIL"
+        message: "Simulation cannot proceed without the pretrained potential model."
+
+  - id: "assemble_lammps_inputs"
+    action: "Prepare LAMMPS input files for a staged protocol: short relaxation or low-temperature pre-equilibration to remove bad contacts, NVT heating to 3000 K, and a 50 ps production run with 0.1 fs timestep. Explicitly state thermo and trajectory output frequencies before production begins."
+    checks:
+      md_setup_ok:
+        method: "Read the generated LAMMPS inputs and parameter summary."
+        guard: "DeePMD is configured and all required MD parameters are explicitly provided."
+    when:
+      - condition: "LAMMPS input assembly fails"
+        evidence: "Missing model linkage, invalid syntax, or incomplete parameter summary."
+        response: "FAIL"
+        message: "Reactive MD cannot start until valid staged input files are ready."
+      - condition: "MD preparation succeeds"
+        evidence: "Model file, staged LAMMPS inputs, and parameter summary are all available."
+        response: "SUCCESS"
+        message: "MD input preparation is complete."

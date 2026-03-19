@@ -14,3 +14,4 @@
 * [生成指南 (Generation Guidelines)](./reference/generation_guidelines.md): 指导 Agent 如何根据自然语言需求标准地**生成**或**修改**一套工作流。
 * [执行指南 (Execution Guidelines)](./reference/execution_guidelines.md): 指导 Agent 在运行态下如何**解析**、**加载**与**执行**该工作流，以及如何处理异常与路由跳转。
 * [案例分析 (Case Studies)](./reference/case_studies.md): 提供基于该规范的实际工程化应用示例（如计算化学工作流）。
+* [工作流实例库 (Workflow Instances)](./workflows-instances/): 存放已构建完成并经过验证的标准工作流目录，供 Agent 直接加载执行或作为扩展模板参考。

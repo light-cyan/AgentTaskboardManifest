@@ -1,0 +1,32 @@
+id: "combustion_reaction_md_workflow"
+domain: "Computational Chemistry"
+applicable_if:
+  - "User wants an executable agent workflow for combustion-system preparation, reactive MD simulation, and reaction-network analysis."
+  - "The task spans chemistry setup, job submission, and post-processing across multiple tools."
+not_applicable_if:
+  - "The user only wants conceptual explanation without workflow execution or file generation."
+  - "The environment cannot support required tools or remote submission and the user does not accept a partial stop."
+non_goals:
+  - "Do not invent structures, server information, software availability, or successful results."
+  - "Do not continue dependent downstream stages after a blocking upstream failure."
+  - "Do not ignore errors, exceptions, or unexpected states; stop and ask the user what to do."
+prerequisites:
+  - "Root workspace for this run is /home/mwding/WorkSpace/Projects/testAgents/workspace4agent."
+  - "Long-running, resource-intensive, or special-software steps must be submitted through dpdispatcher."
+  - "Machine health and submission readiness must be verified before the chemistry workflow starts."
+success_criteria:
+  - "The workflow is organized as lazy-loadable tasks with a top-level entry and reusable subtasks."
+  - "Preparation, simulation, and analysis are clearly separated."
+  - "Preparation is further decomposed into query, initial-coordinate generation, optimization, parsing, and system construction."
+  - "Every blocking failure is reported explicitly and stops dependent downstream execution."
+global_conventions:
+  workspace_dir: "Absolute root directory for this workflow: /home/mwding/WorkSpace/Projects/testAgents/workspace4agent."
+  unknown_policy: "Any value not known at design time must be kept as <unknowns> until inferred or obtained from the user."
+  execution_policy: "Heavy or long-running work must go through dpdispatcher submission instead of inline execution."
+  escalation_policy: "On any error, exception, or unexpected state, stop and ask the user how to proceed."
+  failure_policy: "For each failure, explain whether it blocks downstream work; do not force blocked steps to continue."
+  file_policy: "Use concise English-only filenames and relative task references."
+  units: "Density in g/cm^3, temperature in K, timestep in fs, simulation time in ps, coordinates in Angstrom unless tool defaults require otherwise."
+assumptions:
+  - "The agent can access search-species, openbabel, gjf-flux, dpdisp-submit, dpdata, Packmol, LAMMPS with DeePMD, and ReacNetGenerator, or at least verify their availability."
+  - "The Deep Potential model may be downloaded from the provided URL if network access is available."
