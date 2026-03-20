@@ -1,9 +1,10 @@
 ---
 name: agent-taskboard-manifest
 description: >
-  A specification to define, load, or execute semantic workflow descriptions for agents.
-  USE WHEN the user mentions a complex task: search for a suitable existing workflow, and if found, ask the user for confirmation to execute it.
-  USE WHEN the user requests a text-based plan or asks to summarize executed actions into a workflow: load this specification to generate it.
+    A specification to define, load, or execute semantic workflow descriptions for agents.
+    USE WHEN the user provides a simple text-based plan for a complex task: load this specification to plan the workflow accordingly.
+    USE WHEN the user specifies the location of an existing agent workflow: load and execute it according to the specification.
+    USE WHEN the user asks to summarize executed actions into a workflow: generate the workflow based on this specification.
 metadata:
   author: light-cyan
   version: '0.1.0'
@@ -13,17 +14,17 @@ metadata:
 # Agent Workflow Specification (AgentTaskboardManifest)
 
 ## 概述 (Overview)
-`AgentTaskboardManifest` 是一种专为智能体 (Agent) 设计的标准工作流规范语言。该规范旨在提供一套机器可读且语义丰富的文件结构，用于约束、指导和记录 Agent 的任务执行生命周期。本规范采用分层树状结构组织任务，支持动态推断与懒加载机制。
+`Agent Taskboard Manifest` 是一套专为自主智能体（Autonomous Agents）设计的模块化任务编排规范。本规范基于声明式的 YAML 结构，定义了工作流的物理文件封闭组织形式与内部数据状态。它抛弃硬编码的复杂对象，采用“键名作为标识锚点，自然语言作为语义约束”的模式，用于严格约束、指导和记录 Agent 的任务执行生命周期，并支持运行时的懒加载与动态上下文推断。
 
-## 核心原则 (Core Principles)
-* **语义化约束 (Semantic Constraints):** 优先使用自然语言字符串描述动作与状态约束，降低硬编码规则的耦合度，依赖大语言模型的语义解析能力。
-* **未知状态容忍 (Unknown Tolerance):** 允许在静态设计阶段存在未决定的参数，通过显式的 `<unknowns>` 标识，授权 Agent 在运行时进行动态推断或交互式问询。
-* **层级化编排 (Hierarchical Orchestration):** 宏观调度与微观执行解耦。上层任务负责状态流转与边界定义，具体操作细节下沉至独立的子任务节点。
-* **结构精简 (Structural Conciseness):** 消除不必要的嵌套与冗余逻辑层，确保工作流拓扑的最简性。
+## 核心理念 (Core Principles)
+* **Semantic Constraints:** 抛弃死板的代码控制流，将 I/O 契约与动作规则转化为键值对映射。规范高度信任大语言模型的自然语言解析能力，在调度与校验中偏向描述执行意图与最终验收标准。
+* **Managing Unknowns:** 承认静态编排时的信息盲区。对于缺失的参数或模糊的执行逻辑，严禁基于猜想进行静态假设，必须在契约中声明为 "unknown"，引导 Agent 将其推迟至运行态，通过工具探测或触发主动发问进行动态推断。
+* **Hierarchical Depth & Isolation:** 建立树状的分层拓扑结构。宏观状态流转与微观环境执行垂直解耦。遵循最小知识原则，将底层操作参数下沉至独立的子任务节点，保持严密的作用域隔离，防止上下文污染与逻辑穿透。
+* **Robust Validation & Routing:** 在执行具体任务时，要求前置依赖校验与步骤执行后自检。任务流转高度依赖运行态反馈，采用基于证据的状态路由控制执行流。Agent 需在实际运行结果中提取客观事实以证明路由条件成立。
+* **Human-in-the-Loop Fallback:** 将人工干预作为状态机的标准异常处理环节。当局部无法消解的异常沿调用栈冒泡至顶层时，Agent必须强制终止其自主启动的所有自动化进程。向用户准确汇报异常节点与具体信息，并等待明确的人工指令，以防止错误级联与资源浪费。
 
 ## 文档索引 (Documentation Index)
-* [语法与语义规范 (Syntax & Semantics)](./reference/syntax_and_semantics.md): 定义工作流的目录结构、YAML Schema 及状态机枚举。
-* [生成指南 (Generation Guidelines)](./reference/generation_guidelines.md): 指导 Agent 如何根据自然语言需求标准地**生成**或**修改**一套工作流。
-* [执行指南 (Execution Guidelines)](./reference/execution_guidelines.md): 指导 Agent 在运行态下如何**解析**、**加载**与**执行**该工作流，以及如何处理异常与路由跳转。
-* [案例分析 (Case Studies)](./reference/case_studies.md): 提供基于该规范的实际工程化应用示例（如计算化学工作流）。
-* [工作流实例库 (Workflow Instances)](./workflows-instances/): 存放已构建完成并经过验证的标准工作流目录，供 Agent 直接加载执行或作为扩展模板参考。
+* **[Syntax & Semantics](./reference/syntax_and_semantics.md):** 定义工作流的标准拓扑目录结构、YAML Schema 字段约束、基于自然语言的 I/O 定义、原子步骤结构、异常处理机制及状态机控制流。
+* **[Design Guidelines](./reference/design_guidelines.md):** 指导 Agent 在任务规划与静态生成阶段，如何构建树状分层结构、实施参数下沉与封装，以及如何为每个执行步骤设计完备的条件路由分支。
+* **[Execution Guidelines](./reference/execution_guidelines.md):** 规范 Agent 在运行态下的动态解析行为，包括目标文件的按需懒加载、上下文数据梳理、基于证据的状态路由，以及异常抛递至顶层后的人工干预终端动作。
+

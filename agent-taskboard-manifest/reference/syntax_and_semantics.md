@@ -14,47 +14,55 @@
 用于确立全局执行边界，建立全局上下文（Global Context）。
 
 ```yaml
-id: "<goal_task_name>"
-domain: "<string>"             # 所属领域（如：Computational Chemistry, Data Processing）
-applicable_if:                 # 适用场景列表
-  - "<string>"
-not_applicable_if:             # 不适用场景列表（命中此项应拒绝执行）
-  - "<string>"
-non_goals:                     # 总体边界列表（明确不要做的事情，防止思维发散）
-  - "<string>"
-prerequisites:                 # 全局前置条件列表
-  - "<string>"
-success_criteria:              # 成功标准列表
-  - "<string>"
+workflow_id: "<goal_task_name>"
+domain: "<business_domain>"    # 所属领域（如：Computational Chemistry, Data Processing）
+applicable_if:                 # 适用场景
+  - "<scenario_description>"
+not_applicable_if:             # 不适用场景（命中此项应拒绝执行）
+  - "<exclusion_condition>"
+non_goals:                     # 总体边界（明确不要做的事情，防止思维发散）
+  - "<out_of_scope_behavior>"
+success_criteria:              # 成功标准
+  - "<observable_outcome>"
+  
+prerequisites:                 # 全局前置依赖条件声明
+  <dependency>: "<requirement_description_and_verification_method>"
+  # 举例: `python_env: "Require Python 3.10 or higher. Execute 'python --version' to verify compatibility."`
 
-global_conventions:            # 全局约定(Key 为变量名，Value 为自然语言约束)
-  <convention_key>: "<string>" # 举例: workspace_dir: "必填。当前工作流的根目录，绝对路径。"
-  <convention_key>: "<string>" # 举例: units: "时间用秒，距离用 Angstrom"
-
-assumptions:                   # 潜在假设（如：假设网络通畅、假设用户已登录 VPN、假设用户提供的数据清洗过）
-  - "<string>"
+global_conventions:            # 全局约定
+  <convention>: "<rule_description_and_constraint>" 
+  # 举例: `workspace_dir: "必填。当前工作流的根目录，绝对路径。"`
+  # 举例: `units: "时间用秒，距离用 Angstrom"`
+assumptions:                   # 潜在假设
+  - "<environmental_assumption>"
+  # 举例: `"网络通畅"`
+  # 举例: `"用户已登录VPN"`
+  # 举例: `"用户提供的数据清洗过"`
 ```
 
 ### `*.task.yaml`
 执行的最小功能单元，声明 I/O 契约、环境要求、及执行序。
 
 ```yaml
-id: "<string>"                 # 任务唯一标识，如 "submit_slurm_job"
-purpose: "<string>"            # 本任务的目标
-prerequisites:                 # 执行本 task 前的环境与资源验证列表
-  - spec: "<string>"           # 包含版本约束的描述
-    how_to_check: "<string>"   # 验证方法（如 "Run `sinfo` to check cluster status"）
+task_id: "<task_identifier>"                 # 任务唯一标识，如 "submit_slurm_job"
+purpose: "<task_objective_descriptionx>"            # 本任务的目标
 
 # --- 此处声明整个 Task 的 I/O 契约，用于**对后续步骤中将会用到的各项变量进行集中定义与规范说明**。
-inputs:                        # 任务输入列表 (Key 为变量名，Value 为自然语言约束)
+inputs:                        # Input Definition
   # 变量的来源可以是：
-  #   1. Context: 由上级调用任务隐式传入。
-  #   2. Dynamic: 初始态为 <unknowns>，但在内部执行某个 <step> 时通过工具动态生成。
-  #   3. Human-in-the-loop: 初始态为 <unknowns>，在特定的 <step> 中主动询问用户获取。
-  <param_key>: "<string>"      # 举例: gjf_file: "必需。待处理的 Gaussian 输入文件，默认来自上游上下文，.gjf 格式。"
-  <param_key>: "<string>"      # 举例: password: "可选。连接目标服务器的密码。初始为 unknowns，如果公钥验证失败，需在后续 step 中向用户索取。"
-outputs:                       # 任务输出列表 (Key 为变量名，Value 为自然语言约束)
-  <output_key>: "<string>"     # 举例: job_id: "成功提交到 Slurm 后返回的数字 ID 字符串。"
+  # - Context: 由上级调用任务隐式传入。
+  # - Dynamic: 初始未被描述为 "unknown"，但在内部执行某个 <step_object> 时通过工具动态生成。
+  # - Human-in-the-loop: 初始未被描述为 "unknown"，在特定的 <step_object> 中主动询问用户获取。
+  <variable>: "<source_and_semantic_constraint>"    
+  # 举例: `gjf_file: "必需。待处理的 Gaussian 输入文件，来自上游上下文，.gjf 格式。"`
+  # 举例: `password: "可选。连接目标服务器的密码。初始为 unknown，如果公钥验证失败，需在后续 step 中向用户索取。"`
+outputs:                       # Output Definition
+  <variable>: "<output_description_and_constraint>"     
+  # 举例: `job_id: "成功提交到 Slurm 后返回的数字 ID 字符串。"`
+
+prerequisites:                 # 本task的前置依赖条件声明
+  <dependency>: "<requirement_description_and_verification_method>"
+  # 举例: `slurm_access: "Must have partition submission rights. Run `sinfo` to check cluster status."`
 
 steps:                         # 执行指令序列（默认按序执行）
   - <step_object>
@@ -65,7 +73,7 @@ steps:                         # 执行指令序列（默认按序执行）
 
 ```yaml
 - id: "<step_id>"              # 步骤标识，方便路由跳转
-  action: "<string>"           # 核心动作。直接用自然语言描述 Agent 需执行的行为。
+  action: "<executable_action_description>"           # 核心动作。直接用自然语言描述 Agent 需执行的行为。
   # 举例：
   # - "Execute sub-task `./prepare_data.task.yaml`"
   # - "Run shell command `pytest tests/`"
@@ -74,20 +82,21 @@ steps:                         # 执行指令序列（默认按序执行）
   # - "Inquire user: 'What substance do you want to inquire about?'"
 
   notes:
-    - "<string>"               # 注意事项列表（如 "该命令可能会卡死，请设置 timeout 60s"）
-  produces:                    # 步骤产生的中间件/制品列表 (Key 为变量名，Value 为自然语言约束)
-    <artifact_key>: "<string>" # 举例: temp_log: "运行命令产生的 stdout 文本，用于正则提取。"
-  checks:                      # 步骤执行后的自我检查机制列表
-    <check_key>:  
-      method: "<string>"       # 检查手段（如 "读取 ./slurm-*.out 的最后五行"）
-      guard: "<string>"        # 可判断的规则表达式或自然语言条件（如 "必须包含 'Normal termination'"）
+    - "<execution_note_or_warning>"               # 注意事项（如 "该命令可能会卡死，请设置 timeout 60s"）
+  produces:                    # 步骤产生的中间件/制品说明
+    <artifact>: "<artifact_description_and_use>" 
+    # 举例: `temp_log: "运行命令产生的 stdout 文本，用于正则提取。"`
+  checks:                      # 步骤执行后的自我检查清单
+    <assertion>:  
+      method: "<data_collection_method>"       # 检查手段（如 "读取 ./slurm-*.out 的最后五行"）
+      guard: "<validation_rule_or_condition>"        # 可判断的规则表达式或自然语言条件（如 "必须包含 'Normal termination'"）
 
   # --- 路由与状态控制 (默认进入顺序排列的下一步) ---
   when:                        # 按顺序匹配，命中即停 (Short-circuit evaluation)
-    - condition: "<string>"    # 触发条件（来自 action 反馈或 checks 结果）
-      evidence: "<string>"     # 判定的证据来源（如 "日志中出现 OOM"）
-      response: "<response>"   # 响应动作 (SUCCESS | FAIL | RETRY | goto(id) | raise(状态字符串))，具体见下方具体状态定义
-      message: "<string>"      # 附带信息（如具体的修复建议、改动提示）
+    - condition: "<trigger_condition_description>"    # 触发条件（来自 action 反馈或 checks 结果）
+      evidence: "<observable_evidence_source>"     # 判定的证据来源（如 "日志中出现 OOM"）
+      response: "<response>"   # 响应动作，具体见下方具体状态定义
+      message: "<state_transition_message_or_instruction>"      # 附带信息（如具体的修复建议、改动提示）
 ```
 
 ### State Machine & Routing
