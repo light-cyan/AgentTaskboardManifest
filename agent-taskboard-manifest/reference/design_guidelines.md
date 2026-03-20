@@ -21,12 +21,12 @@
     - 必须将该环节降级为“探索性节点”，在 `action` 中明确表达未知，并依赖运行态的外部检索或人工介入来打通逻辑（如：`action: "Search the official documentation to find the correct command for..."` 或 `action: "Inquire user about the preferred method/tool to process this data."`）。
 
 ## 语义化动作描述
-`action` 和 `checks`的`guard` 字段的编写应偏向描述“意图”和“验收标准”，而非受限于特定编程语言的死板语法。应信任下游 Agent 在执行态能够将自然语言指令转换为实际的环境操作指令。
+action 和 checks 的 guard 字段的编写应偏向描述“意图”与“验收标准”，而非受限于特定编程语言的死板语法。在规划具体动作时，应优先调度 Agent Skills，而非自行编码底层脚本执行。信任下游 Agent 在运行时能够将自然语言指令准确转换为实际的环境操作。
 
 ## 健壮的路由机制 (Robust Routing)
 为每个关键 `<step_object>` 设计完备的 `when` 分支。必须至少考虑以下三种状态并生成相应的路由响应：
-1.  **预期成功** (`goto` 下一步或 `SUCCESS`)。
-2.  **可恢复异常**（基于条件触发 `RETRY` 或转移到纠错 `<step_id>`）。
-3.  **不可恢复异常**（向上冒泡 `raise` 或触发全局 `FAIL`）。
+1. **预期成功** (`goto` 下一步或 `SUCCESS`)。
+2. **可恢复异常**（基于条件触发 `RETRY` 或转移到纠错 `<step_id>`）。
+3. **不可恢复异常**（向上冒泡 `raise` 或触发全局 `FAIL`）。
 
 ## Case Studies
