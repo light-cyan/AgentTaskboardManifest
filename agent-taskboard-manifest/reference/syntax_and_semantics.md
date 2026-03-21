@@ -1,5 +1,5 @@
 # 语法与语义规范 (Syntax and Semantics)
-本规范定义了 `AgentTaskboardManifest` 的物理文件组织形式及内部数据结构。映射规则采用“键名作为标识锚点，字符串作为语义约束”的模式。
+本规范定义了 `AgentTaskboardManifest` 的物理文件组织形式、内部数据结构及其核心逻辑语义。
 
 ## 目录结构与作用域
 工作流以独立目录的形式进行封闭组织，其标准拓扑结构如下：
@@ -8,9 +8,7 @@
 * `!entry.task.yaml`: **主入口节点 (Entry Node)**。工作流初始化的首个加载对象。
 * `*.task.yaml`: **子任务节点 (Sub-task Nodes)**。可复用的具体执行单元，支持相对路径引用（如 `./xyz.task.yaml`）。
 
-## Schema 定义
-
-### `-workflow.yaml`
+## `-workflow.yaml`
 用于确立全局执行边界，建立全局上下文（Global Context）。
 
 ```yaml
@@ -40,7 +38,7 @@ assumptions:                   # 潜在假设
   # 举例: `"用户提供的数据清洗过"`
 ```
 
-### `*.task.yaml`
+## `*.task.yaml`
 执行的最小功能单元，声明 I/O 契约、环境要求、及执行序。
 
 ```yaml
@@ -68,7 +66,7 @@ steps:                         # 执行指令序列（默认按序执行）
   - <step_object>
 ```
 
-### `<step_object>`
+## `<step_object>`
 任务序列中的原子操作单元。包含行为动作、产物预期、自我校验和路由跳转。
 
 ```yaml
@@ -100,7 +98,7 @@ steps:                         # 执行指令序列（默认按序执行）
       message: "<state_transition_message_or_instruction>"      # 状态转移的附带指令或上下文（如抛出异常时的排查建议，或指导下一步任务的调整方向，例如`"解析并执行用户在此断点补充的修改建议"`）
 ```
 
-### State Machine & Routing
+## State Machine & Routing
 `<response>` 字段仅接受以下五种指令：
 
 **生命周期指令：**

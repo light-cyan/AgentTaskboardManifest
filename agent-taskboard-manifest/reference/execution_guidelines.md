@@ -1,4 +1,5 @@
 # 执行指南 (Execution Guidelines)
+本指南规定了 Agent 在运行时加载配置、处理变量作用域、评估执行状态以及触发异常干预的具体行为逻辑。
 
 ## 懒加载策略 (Lazy Loading Strategy)
 * **初始化：** 启动时，Agent 必须且仅读取 `-workflow.yaml` 加载全局上下文，并读取 `!entry.task.yaml` 建立主执行栈。
