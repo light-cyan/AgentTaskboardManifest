@@ -4,7 +4,7 @@
 ## 目录结构与作用域
 工作流以独立目录的形式进行封闭组织，其标准拓扑结构如下：
 
-* `-workflow.yaml`: **全局上下文 (Global Context)**。定义工作流的宏观边界、全局约定与最终成功标准。
+* `-workflow.yaml`: **全局上下文 (Global Context)**。定义工作流的目的、宏观边界、全局约定与最终成功标准。
 * `!entry.task.yaml`: **主入口节点 (Entry Node)**。工作流初始化的首个加载对象。
 * `*.task.yaml`: **子任务节点 (Sub-task Nodes)**。可复用的具体执行单元，支持相对路径引用（如 `./xyz.task.yaml`）。
 
@@ -42,25 +42,25 @@ assumptions:                   # 潜在假设
 执行的最小功能单元，声明 I/O 契约、环境要求、及执行序。
 
 ```yaml
-task_id: "<task_identifier>"                 # 任务唯一标识，如 "submit_slurm_job"
-purpose: "<task_objective_descriptionx>"            # 本任务的目标
+task_id: "<task_identifier>"                 # 任务唯一标识(如 "submit_slurm_job")
+purpose: "<task_objective_descriptionx>"     # 本任务的目标
+
+prerequisites:                 # 本task的前置依赖条件声明
+  <dependency>: "<requirement_description_and_verification_method>"
+  # 举例: `slurm_access: "Must have partition submission rights. Run `sinfo` to check cluster status."`
 
 # --- 此处声明整个 Task 的 I/O 契约，用于**对后续步骤中将会用到的各项变量进行集中定义与规范说明**。
 inputs:                        # Input Definition
   # 变量的来源可以是：
   # - Context: 由上级调用任务隐式传入。
-  # - Dynamic: 初始未被描述为 "unknown"，但在内部执行某个 <step_object> 时通过工具动态生成。
-  # - Human-in-the-loop: 初始未被描述为 "unknown"，在特定的 <step_object> 中主动询问用户获取。
+  # - Dynamic: 初始被描述为 "unknown"，但在内部执行某个 <step_object> 时通过工具动态生成。
+  # - Human-in-the-loop: 初始被描述为 "unknown"，在特定的 <step_object> 中主动询问用户获取。
   <variable>: "<source_and_semantic_constraint>"    
-  # 举例: `gjf_file: "必需。待处理的 Gaussian 输入文件，来自上游上下文，.gjf 格式。"`
-  # 举例: `password: "可选。连接目标服务器的密码。初始为 unknown，如果公钥验证失败，需在后续 step 中向用户索取。"`
+  # 举例: `gjf_file: "必需。待处理的 Gaussian 输入文件。来自上游上下文。.gjf 格式。"`
+  # 举例: `password: "可选。连接目标服务器的密码。初始为 unknown。如果公钥验证失败，需在后续 step 中向用户索取。"`
 outputs:                       # Output Definition
   <variable>: "<output_description_and_constraint>"     
   # 举例: `job_id: "成功提交到 Slurm 后返回的数字 ID 字符串。"`
-
-prerequisites:                 # 本task的前置依赖条件声明
-  <dependency>: "<requirement_description_and_verification_method>"
-  # 举例: `slurm_access: "Must have partition submission rights. Run `sinfo` to check cluster status."`
 
 steps:                         # 执行指令序列（默认按序执行）
   - <step_object>
@@ -70,8 +70,8 @@ steps:                         # 执行指令序列（默认按序执行）
 任务序列中的原子操作单元。包含行为动作、产物预期、自我校验和路由跳转。
 
 ```yaml
-- id: "<step_id>"              # 步骤标识，方便路由跳转
-  action: "<executable_action_description>"           # 核心动作。直接用自然语言描述 Agent 需执行的行为。
+- id: "<step_id>"                                           # 步骤标识，方便路由跳转
+  action: "<executable_action_description>"                 # 核心动作。直接用自然语言描述 Agent 需执行的行为。
   # 举例：
   # - `"Execute sub-task `./prepare_data.task.yaml`"`
   # - `"Run shell command `pytest tests/`"`
@@ -81,21 +81,21 @@ steps:                         # 执行指令序列（默认按序执行）
   # - `"Inquire user: 'What substance do you want to inquire about?'"`
 
   notes:
-    - "<execution_note_or_warning>"               # 注意事项（如 "该命令可能会卡死，请设置 timeout 60s"）
-  produces:                    # 步骤产生的中间件/制品说明
+    - "<execution_note_or_warning>"                         # 注意事项（如 "该命令可能会卡死，请设置 timeout 60s"）
+  produces:                                                 # 步骤产生的中间件/制品说明
     <artifact>: "<artifact_description_and_use>" 
     # 举例: `temp_log: "运行命令产生的 stdout 文本，用于正则提取。"`
-  checks:                      # 步骤执行后的自我检查清单
+  checks:                                                   # 步骤执行后的自我检查清单
     <assertion>:  
-      method: "<data_collection_method>"       # 检查手段（如 "读取 ./slurm-*.out 的最后五行"）
-      guard: "<validation_rule_or_condition>"        # 可判断的规则表达式或自然语言条件（如 "必须包含 'Normal termination'"）
+      method: "<data_collection_method>"                    # 检查手段（如 "读取 ./slurm-*.out 的最后五行"）
+      guard: "<validation_rule_or_condition>"               # 可判断的规则表达式或自然语言条件（如 "必须包含 'Normal termination'"）
 
   # --- 路由与状态控制 (默认进入顺序排列的下一步) ---
-  when:                        # 按顺序匹配，命中即停 (Short-circuit evaluation)
-    - condition: "<trigger_condition_description>"    # 触发条件（来自 action 的运行反馈或 checks 的自检结果）
-      evidence: "<observable_evidence_source>"     # 判定的证据来源（如 "日志中出现 OOM"，或 "用户在检查断点表达不满并给出修改建议"）
-      response: "<response>"   # 响应动作，具体见下方具体状态定义
-      message: "<state_transition_message_or_instruction>"      # 状态转移的附带指令或上下文（如抛出异常时的排查建议，或指导下一步任务的调整方向，例如`"解析并执行用户在此断点补充的修改建议"`）
+  when:                                                     # 按顺序匹配，命中即停 (Short-circuit evaluation)
+    - condition: "<trigger_condition_description>"          # 触发条件（来自 action 的运行反馈或 checks 的自检结果）
+      evidence: "<observable_evidence_source>"              # 判定的证据来源（如 "日志中出现 OOM"，或 "用户在检查断点表达不满并给出修改建议"）
+      response: "<response>"                                # 响应动作，具体见下方具体状态定义
+      message: "<state_transition_message_or_instruction>"  # 状态转移的附带指令或上下文（如抛出异常时的排查建议，或指导下一步任务的调整方向，例如`"解析并执行用户在此断点补充的修改建议"`）
 ```
 
 ## State Machine & Routing
