@@ -10,8 +10,3 @@
 * **Robust Validation & Routing:** 在执行具体任务时，要求前置依赖校验与步骤执行后自检。任务流转高度依赖运行态反馈，采用基于证据的状态路由控制执行流。Agent 需在实际运行结果中提取客观事实以证明路由条件成立。
 * **Human-in-the-Loop:** 将人工干预确立为状态机的标准控制组件。在规划阶段，需在高危操作、产物验收或策略分流处主动设计阻塞式的审核断点；在执行阶段，当局部无法消解的异常冒泡至顶层时，必须强制终止其自主启动的所有自动化进程。需向用户准确汇报当前上下文或异常节点，并依赖明确的人工指令来决定后续路由，以防止错误级联与资源浪费。
 
-## 文档索引 (Documentation Index)
-* **[Syntax & Semantics](./agent-taskboard-manifest/reference/syntax_and_semantics.md):** 定义工作流的标准拓扑目录结构、YAML Schema 字段约束、基于自然语言的 I/O 定义、原子步骤结构、异常处理机制及状态机控制流。
-* **[Design Guidelines](./agent-taskboard-manifest/reference/design_guidelines.md):** 指导 Agent 在任务规划与总结和生成阶段，如何构建树状分层结构、实施参数下沉与封装，以及如何为每个执行步骤设计完备的条件路由分支。
-* **[Execution Guidelines](./agent-taskboard-manifest/reference/execution_guidelines.md):** 规范 Agent 在运行态下的动态解析行为，包括目标文件的按需懒加载、上下文数据梳理、基于证据的状态路由，以及异常抛递至顶层后的人工干预终端动作。
-
