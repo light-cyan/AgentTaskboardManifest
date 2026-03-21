@@ -75,11 +75,12 @@ steps:                         # 执行指令序列（默认按序执行）
 - id: "<step_id>"              # 步骤标识，方便路由跳转
   action: "<executable_action_description>"           # 核心动作。直接用自然语言描述 Agent 需执行的行为。
   # 举例：
-  # - "Execute sub-task `./prepare_data.task.yaml`"
-  # - "Run shell command `pytest tests/`"
-  # - "Search the web for the latest Python documentation"
-  # - "Inquire user: 'Do you want to overwrite?' (options: [yes, no])"
-  # - "Inquire user: 'What substance do you want to inquire about?'"
+  # - `"Execute sub-task `./prepare_data.task.yaml`"`
+  # - `"Run shell command `pytest tests/`"`
+  # - `"Request user to review the intermediate results and confirm before proceeding."`
+  # - `"Search the web for the latest Python documentation"`
+  # - `"Inquire user: 'Do you want to overwrite?' (options: [yes, no])"`
+  # - `"Inquire user: 'What substance do you want to inquire about?'"`
 
   notes:
     - "<execution_note_or_warning>"               # 注意事项（如 "该命令可能会卡死，请设置 timeout 60s"）
@@ -93,10 +94,10 @@ steps:                         # 执行指令序列（默认按序执行）
 
   # --- 路由与状态控制 (默认进入顺序排列的下一步) ---
   when:                        # 按顺序匹配，命中即停 (Short-circuit evaluation)
-    - condition: "<trigger_condition_description>"    # 触发条件（来自 action 反馈或 checks 结果）
-      evidence: "<observable_evidence_source>"     # 判定的证据来源（如 "日志中出现 OOM"）
+    - condition: "<trigger_condition_description>"    # 触发条件（来自 action 的运行反馈或 checks 的自检结果）
+      evidence: "<observable_evidence_source>"     # 判定的证据来源（如 "日志中出现 OOM"，或 "用户在检查断点表达不满并给出修改建议"）
       response: "<response>"   # 响应动作，具体见下方具体状态定义
-      message: "<state_transition_message_or_instruction>"      # 附带信息（如具体的修复建议、改动提示）
+      message: "<state_transition_message_or_instruction>"      # 状态转移的附带指令或上下文（如抛出异常时的排查建议，或指导下一步任务的调整方向，例如`"解析并执行用户在此断点补充的修改建议"`）
 ```
 
 ### State Machine & Routing

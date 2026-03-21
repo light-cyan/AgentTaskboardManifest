@@ -15,20 +15,20 @@ metadata:
 # Agent Workflow Specification (AgentTaskboardManifest)
 
 ## Execution Procedure
-It is **mandatory** for the Agent to read `./reference/syntax_and_semantics.md` as the definitive Source of Truth prior to evaluating task routes, interpreting user intent, or generating any workflow artifacts. 
+代理在评估任务路径、解析用户意图或生成任何工作流产物之前，**必须**阅读 `./reference/syntax_and_semantics.md`，该文件为权威的事实来源。
 
-Subsequent to this foundational loading, the Agent must assess the context and transition into one of the following execution routes. It is **mandatory** to read and follow the specific reference files for the chosen route before proceeding:
+在完成这一基础加载之后，代理必须评估上下文并过渡到以下执行路径之一。在继续之前，**必须**阅读并遵循所选路径的特定参考文件：
 
-- **Route: Planning & Generation**
-  Mandatory Context:
+- **路径：规划与生成**
+  必需上下文：
   - `./reference/design_guidelines.md`
   - `./reference/plan_communication_guidelines.md`
 
-- **Route: Formalization & Summarization**
-  Mandatory Context:
+- **路径：形式化与总结**
+  必需上下文：
   - `./reference/design_guidelines.md`
 
-- **Route: Loading & Execution**
-  Mandatory Context:
+- **路径：加载与执行**
+  必需上下文：
   - `./reference/execution_guidelines.md`
 

@@ -21,7 +21,6 @@
     * `when` 数组的评估遵循*Short-circuit evaluation*规则。自上而下逐条比对，命中首个拥有事实支撑的条件即刻触发状态转移，并严格忽略该数组中的后续所有分支。
     * 若当前 `<step_object>` 实际运行反馈未能提供 `when` 列表中任何 `evidence` 所要求的确凿证据(，或当前步骤未显式声明 `when` 数组)，默认继续执行列表中的下一个 `<step_object>`。
 
-
 ## 异常冒泡与人工干预 (Exception Bubbling & Human Fallback)
 当 `<step_object>` 触发 `raise(<status_string>)` 时，遵循以下状态流转与上报规则：
 1. **自动流中断：** 当前子任务的自动化探索立即停止，不再向后进行。
