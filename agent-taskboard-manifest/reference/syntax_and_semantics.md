@@ -73,6 +73,7 @@ The atomic operational unit within the task sequence. Contains behavioral action
 - id: "<step_id>"                                           # Step identifier, facilitates routing jumps
   action: "<executable_action_description>"                 # Core action. Directly describe the behavior the Agent needs to execute using natural language.
   # Examples:
+  # - `"Load skill '<name of the agent skill>'"`
   # - `"Execute sub-task './prepare_data.task.yaml'"`
   # - `"Run shell command 'pytest tests/'"`
   # - `"Request user to review the intermediate results and confirm before proceeding."`

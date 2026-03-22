@@ -21,10 +21,13 @@ After establishing this foundation, the Agent must determine the applicable exec
 
 ### Route 1: Planning / Generation
 *Applies when building a new workflow from scratch collaboratively.*
+* **Core Planning Constraints:**
+    * **No Execution Allowed:** The planning phase is strictly for structural modeling. Executing operations, running commands, or validating the environment is **strictly prohibited** (these actions belong exclusively to the execution phase).
+    * **Skill Priority:** When formulating strategies, always prioritize solutions supported by existing **Agent Skills** over custom script generation or manual tool creation.
 1. **Mandatory Reading:** `./reference/plan_communication_guidelines.md`.
-2. **Initial Alignment & Baseline:** Engage with the user to outline the macro-level structure. Produce the minimum baseline deliverables (`-workflow.yaml` and `!entry.task.yaml`), report the preliminary architecture to the user, and **pause execution** to await user confirmation.
-3. **Mandatory Reading:** `./reference/design_guidelines.md` (Proceed only after user approval of the baseline).
-4. **Iterative Refinement:** Progressively expand the workflow details and deep-level tasks through continuous user consultation. Strictly adhere to syntax and design constraints. Arbitrary fabrication of steps or dependencies is strictly prohibited.
+2. **Mandatory Reading:** `./reference/design_guidelines.md`.
+3. **Initial Alignment & Baseline:** Engage with the user to outline the **strictly macro-level structure**. Produce the minimum baseline deliverables (`-workflow.yaml` and `!entry.task.yaml`). **Do not delve into any execution details, concrete parameters, or deep sub-tasks at this stage.** Report the preliminary architecture to the user and wait for the user's confirmation.
+4. **Iterative Refinement:** Progressively expand the workflow details and deep-level tasks through continuous user consultation. **You must discuss and design only ONE specific sub-task at a time.** Unfolding or generating the entire detailed workflow tree simultaneously is strictly prohibited. Strictly adhere to syntax and design constraints. Arbitrary fabrication of steps or dependencies is strictly prohibited.
 
 ### Route 2: Formalization / Summarization
 *Applies when converting a text plan into a manifest, or abstracting completed work into a reusable workflow.*
