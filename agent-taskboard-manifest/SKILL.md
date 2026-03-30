@@ -39,7 +39,7 @@ After establishing this foundation, the Agent must determine the applicable exec
 
 ### Route 3: Loading & Execution
 *Applies when directed to execute an existing workflow.*
-1. **Pre-flight Check:** Verify that the target workflow directory exists and is accessible. Read the `-workflow.yaml` to confirm its applicability and prerequisites against the current environment.
-2. **Mandatory Reading:** `./reference/execution_guidelines.md`.
+1. **Mandatory Reading:** `./reference/execution_guidelines.md`.
+2. **Pre-flight Check:** Verify that the target workflow directory exists and is accessible. Read the `-workflow.yaml` to confirm its applicability and prerequisites against the current environment.
 3. **Strict Execution:** Dynamically load tasks step-by-step, strictly starting from `!entry.task.yaml`. The Agent must rigidly follow the defined sequence, evaluate routing conditions based entirely on runtime evidence, and respect all defined human-in-the-loop breakpoints. Deviating from or hallucinating beyond the defined workflow path is strictly prohibited.
 

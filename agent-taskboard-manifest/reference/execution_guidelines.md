@@ -3,7 +3,7 @@ This guide defines the specific behavioral logic for the Agent during runtime re
 
 ## Lazy Loading Strategy
 * **Initialization:** Upon startup, the Agent must *only* read `-workflow.yaml` to load the global context and read `!entry.task.yaml` to establish the main execution stack.
-* **On-Demand Loading:** Only when the execution flow reaches a `<step_object>` that references a sub-task (e.g., `action: "Execute sub-task ./xxx.task.yaml"`), is the Agent permitted to dynamically load the target YAML file into the context.
+* **On-Demand Loading:** **Only when the execution flow reaches a `<step_object>` that references a sub-task** (e.g., `action: "Execute sub-task ./xxx.task.yaml"`), is the Agent permitted to dynamically load the target YAML file into the context.
 
 ## Variables Passing & Scope
 * **Context Inheritance:** When a sub-task is invoked, it automatically inherits the global context (`global_conventions`) and the `inputs` of the parent task.
