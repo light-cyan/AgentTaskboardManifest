@@ -12,7 +12,7 @@ Workflows are organized in closed, independent directories. The standard topolog
 Used to establish global execution boundaries and set up the Global Context.
 
 ```yaml
-workflow_id: "<goal_task_name>"
+workflow_identifier>: "<goal_task_name>"
 domain: "<business_domain>"    # The business domain (e.g., Computational Chemistry, Data Processing)
 applicable_if:                 # Applicable scenarios
   - "<scenario_description>"
@@ -53,7 +53,6 @@ prerequisites:                 # Prerequisite dependency declarations for this s
 inputs:                        # Input Definition
   # The sources of variables can be:
   # - Context: Implicitly passed by the calling parent task.
-  # - Dynamic: Initially described as "unknown", but dynamically generated via tools during the internal execution of a <step_object>.
   # - Human-in-the-loop: Initially described as "unknown", but actively requested from the user within a specific <step_object>.
   <variable>: "<source_and_semantic_constraint>"    
   # Example: `gjf_file: "Required. The Gaussian input file to be processed; Sourced from upstream context; .gjf format."`
@@ -70,7 +69,7 @@ steps:                         # Execution instruction sequence (executed sequen
 The atomic operational unit within the task sequence. Contains behavioral actions, expected artifacts, self-validation, and routing jumps.
 
 ```yaml
-- id: "<step_id>"                                           # Step identifier, facilitates routing jumps
+- id: "<step_identifier>"                                           # Unique step identifier, facilitates routing jumps
   action: "<executable_action_description>"                 # Core action. Directly describe the behavior the Agent needs to execute using natural language.
   # Examples:
   # - `"Load skill '<name of the agent skill>'"`
@@ -96,7 +95,7 @@ The atomic operational unit within the task sequence. Contains behavioral action
     - condition: "<trigger_condition_description>"          # Trigger condition (derived from 'action' execution feedback or 'checks' self-validation results)
       evidence: "<observable_evidence_source>"              # Source of evidence for the judgment (e.g., "OOM appears in the log", or "User expressed dissatisfaction at the audit breakpoint and provided modification suggestions")
       response: "<response>"                                # Response action, see specific state definitions below
-      message: "<state_transition_message_or_instruction>"  # Accompanying instruction or context for the state transition (e.g., troubleshooting suggestions when throwing an exception, or guiding the adjustment direction for the next task, such as "Parse and execute the user's modification suggestions provided at this breakpoint")
+      message: "<state_transition_message_or_instruction>"  # Accompanying instruction or context for the state transition. This can include troubleshooting suggestions for exceptions, or directions for the next step (e.g., "Parse and execute the user's modification suggestions provided at this breakpoint"). If no adjustment is needed, note it as "...".
 ```
 
 ## State Machine & Routing
